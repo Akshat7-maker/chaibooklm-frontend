@@ -23,7 +23,7 @@ export function proxy(request: NextRequest) {
 
   // Already logged in, trying to visit login/register → send to app
   if (hasSession && isAuthPage) {
-    return NextResponse.redirect(new URL("/notebooks", request.url));
+    return NextResponse.redirect(new URL("/notebook", request.url));
   }
 
   return NextResponse.next();

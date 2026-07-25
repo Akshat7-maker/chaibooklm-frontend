@@ -1,58 +1,69 @@
 "use client";
 
-import { BookOpen } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { Aurora } from "./aurora";
+import { Beam } from "./beam";
+import { Particles } from "./particles";
+import { NotebookIcon } from "./notebook";
+import { LoadingText } from "./loading-text";
 
-export function PageLoader() {
+interface PageLoaderProps {
+  isLoading?: boolean;
+}
+
+export function PageLoader({ isLoading = true }: PageLoaderProps) {
+  const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
+  const [phase, setPhase] = useState<"enter" | "active" | "exit" | "done">("enter");
+
+  // Fade-in on mount
+  useEffect(() => {
+    const timer = setTimeout(() => setPhase("active"), 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Exit animation when loading completes
+  useEffect(() => {
+    if (!isLoading && phase === "active") {
+      setPhase("exit");
+      const timer = setTimeout(() => setPhase("done"), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [isLoading, phase]);
+
+  // Mouse parallax (±8px)
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    const x = ((e.clientX / window.innerWidth) - 0.5) * 16;
+    const y = ((e.clientY / window.innerHeight) - 0.5) * 16;
+    setMouseOffset({ x, y });
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, [handleMouseMove]);
+
+  if (phase === "done") return null;
+
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-background">
-      {/* Animated background */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/15 blur-3xl animate-pulse" />
+    <div
+      className={`fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden bg-background
+        transition-all duration-700 ease-out
+        ${phase === "enter" ? "opacity-0" : ""}
+        ${phase === "exit" ? "opacity-0 scale-105" : ""}
+        ${phase === "active" ? "opacity-100" : ""}`}
+    >
+      <Aurora />
+      <Beam />
+      <Particles mouseOffset={mouseOffset} />
 
-        <div className="absolute top-0 left-0 h-1 w-full overflow-hidden">
-          <div className="h-full w-1/3 bg-gradient-to-r from-transparent via-primary to-transparent animate-[beam_1.6s_linear_infinite]" />
-        </div>
-
-        {[...Array(20)].map((_, i) => (
-          <span
-            key={i}
-            className="absolute h-1.5 w-1.5 rounded-full bg-primary/40 animate-float"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-              animationDuration: `${5 + Math.random() * 6}s`,
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Card */}
-      <div className="relative flex flex-col items-center">
-        <div className="relative">
-          {/* Glow */}
-          <div className="absolute inset-0 rounded-full bg-primary/30 blur-2xl animate-pulse" />
-
-          {/* Icon */}
-          <div className="relative flex h-24 w-24 items-center justify-center rounded-3xl border border-primary/20 bg-card shadow-2xl backdrop-blur">
-            <BookOpen className="h-10 w-10 text-primary animate-bounce" />
-          </div>
-        </div>
-
-        <h2 className="mt-8 text-lg font-semibold tracking-tight">
-          Preparing your workspace
-        </h2>
-
-        <p className="mt-2 text-sm text-muted-foreground">
-          Organizing notebooks and syncing everything...
-        </p>
-
-        {/* Loading dots */}
-        <div className="mt-8 flex gap-2">
-          <span className="h-2 w-2 rounded-full bg-primary animate-[dot_1.2s_infinite]" />
-          <span className="h-2 w-2 rounded-full bg-primary animate-[dot_1.2s_.2s_infinite]" />
-          <span className="h-2 w-2 rounded-full bg-primary animate-[dot_1.2s_.4s_infinite]" />
-        </div>
+      <div
+        className={`relative flex flex-col items-center gap-10 transition-all duration-700 ease-out
+          ${phase === "enter" ? "opacity-0 translate-y-4" : ""}
+          ${phase === "exit" ? "opacity-0 scale-110" : ""}
+          ${phase === "active" ? "opacity-100 translate-y-0" : ""}`}
+      >
+        <NotebookIcon mouseOffset={mouseOffset} />
+        <LoadingText />
       </div>
     </div>
   );

@@ -177,12 +177,7 @@ Very subtle.
 
 # Color Palette
 
-Light Mode
-
--   Background: white
--   Glow: blue/purple
--   Beam: primary color
--   Text: slate
+~~Light Mode~~ (App is dark-mode only — see `layout.tsx`)
 
 Dark Mode
 
@@ -218,7 +213,6 @@ components/shared/
 ├── loading-text.tsx
 ├── aurora.tsx
 ├── beam.tsx
-└── loader.css
 ```
 
 ------------------------------------------------------------------------

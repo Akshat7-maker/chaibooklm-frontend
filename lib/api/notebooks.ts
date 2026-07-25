@@ -14,7 +14,7 @@ export const notebooksApi = {
 
 export const resourcesApi = {
   list: (notebookId: string) =>
-    apiFetch<{ resources: Resource[] }>(`/notebooks/${notebookId}/resources`),
+    apiFetch<{ resources: Resource[] }>(`/notebooks/${notebookId}/resources/get-resources`),
 
   upload: (notebookId: string, formData: FormData) =>
     apiFetch<{ resource: Resource }>(`/notebooks/${notebookId}/resources/upload`, {

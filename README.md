@@ -1,36 +1,269 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NotebookLM Clone - Frontend
 
-## Getting Started
+A modern AI knowledge workspace inspired by Google's NotebookLM.
 
-First, run the development server:
+The frontend is built with **Next.js**, **TypeScript**, and **Tailwind CSS**, providing a fast and responsive interface for uploading resources, managing notebooks, and chatting with AI.
+
+---
+
+## Features
+
+- Authentication
+- Notebook Management
+- Resource Upload
+- Real-time Processing Updates
+- AI Chat Interface
+- Streaming Responses
+- Responsive UI
+- Dark Mode
+- Socket.IO Integration
+
+---
+
+# Tech Stack
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- TanStack Query
+- Axios
+- Socket.IO Client
+- React Hook Form
+- Zod
+- Lucide React
+
+---
+
+# Folder Structure
+
+```text
+src/
+
+├── app/
+│
+├── components/
+│   ├── common/
+│   ├── chat/
+│   ├── notebook/
+│   └── ui/
+│
+├── hooks/
+│
+├── lib/
+│
+├── providers/
+│
+├── services/
+│
+├── types/
+│
+└── utils/
+```
+
+---
+
+# Getting Started
+
+## Clone
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
+git clone <repo-url>
+
+cd frontend
+```
+
+Install
+
+```bash
+bun install
+```
+
+Create Environment File
+
+```bash
+cp .env.example .env.local
+```
+
+Example
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+
+NEXT_PUBLIC_SOCKET_URL=http://localhost:5000
+```
+
+Run Development Server
+
+```bash
 bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The application will start on
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+# Scripts
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+bun dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Runs development server.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+bun build
+```
 
-## Deploy on Vercel
+Creates production build.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+bun start
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Runs production server.
+
+```bash
+bun lint
+```
+
+Runs linting.
+
+---
+
+# Features
+
+## Authentication
+
+- Login
+- Register
+- JWT Authentication
+
+---
+
+## Dashboard
+
+- View notebooks
+- Create notebook
+- Delete notebook
+- Rename notebook
+
+---
+
+## Resource Upload
+
+Supported resources
+
+- PDF
+- Website
+- YouTube
+- DOCX
+- TXT
+- VTT
+
+---
+
+## Processing Updates
+
+Uses Socket.IO for
+
+- Upload progress
+- Processing status
+- Ready notifications
+- Failed notifications
+
+---
+
+## Chat
+
+Supports
+
+- Streaming responses
+- Markdown rendering
+- Citations
+- Conversation history
+
+---
+
+# API Communication
+
+Uses REST APIs for
+
+- Authentication
+- Notebook Management
+- Resource Upload
+- Chat
+- Conversations
+
+---
+
+# State Management
+
+The application uses TanStack Query for
+
+- API Caching
+- Request Deduplication
+- Background Refetching
+- Cache Invalidation
+
+---
+
+# Real-Time Updates
+
+Socket.IO is used only for
+
+- Processing updates
+- Resource status
+- Notifications
+
+Chat responses are streamed over HTTP.
+
+---
+
+# Styling
+
+Tailwind CSS
+
+Design principles
+
+- Responsive
+- Accessible
+- Minimal
+- Dark Mode
+- Mobile Friendly
+
+---
+
+# Environment Variables
+
+```env
+NEXT_PUBLIC_API_URL=
+
+NEXT_PUBLIC_SOCKET_URL=
+```
+
+---
+
+# Build
+
+```bash
+bun run build
+```
+
+---
+
+# Production
+
+```bash
+bun start
+```
+
+---
+
+# License
+
+MIT

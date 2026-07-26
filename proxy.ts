@@ -1,27 +1,25 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 const AUTH_PAGES = ["/login", "/register"];
-const PROTECTED_PREFIXES = ["/notebooks"];
+const PROTECTED_PREFIXES = ["/notebook"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  console.log("pathname proxy", pathname);
-
   const hasSession = request.cookies.has("refreshToken");
-  console.log("hasSession", hasSession);
-  const isAuthPage = AUTH_PAGES.some((path) => pathname === path);
-//   const isProtectedRoute = PROTECTED_PREFIXES.some((prefix) => pathname.startsWith(prefix));
 
-  // Not logged in, trying to access a protected route → send to login
-  if (!hasSession && !isAuthPage) {
-    const loginUrl = new URL("/login", request.url);
-    // loginUrl.searchParams.set("from", pathname); // optional: redirect back after login
-    return NextResponse.redirect(loginUrl);
+  const isAuthPage = AUTH_PAGES.includes(pathname);
+
+  const isProtectedRoute = PROTECTED_PREFIXES.some((prefix) =>
+    pathname.startsWith(prefix)
+  );
+
+  // Only protect notebook routes
+  if (!hasSession && isProtectedRoute) {
+    return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Already logged in, trying to visit login/register → send to app
+  // Prevent logged-in users from visiting login/register
   if (hasSession && isAuthPage) {
     return NextResponse.redirect(new URL("/notebook", request.url));
   }
@@ -31,6 +29,6 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!api|_next/static|_next/image|favicon.ico|sitemap.xml|robots.txt).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|robots.txt|sitemap.xml).*)",
   ],
 };

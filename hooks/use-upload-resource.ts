@@ -16,3 +16,14 @@ export function useUploadResource(notebookId: string) {
       queryClient.invalidateQueries({ queryKey: ["notebooks", notebookId, "resources"] }),
   });
 }
+
+export function useAddWebResource(notebookId: string) {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: { url: string; type: "YOUTUBE" | "WEBSITE" }) =>
+      resourcesApi.addWebResource(notebookId, data),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: ["notebooks", notebookId, "resources"] }),
+  });
+}

@@ -19,7 +19,13 @@ export const resourcesApi = {
   upload: (notebookId: string, formData: FormData) =>
     apiFetch<{ resource: Resource }>(`/notebooks/${notebookId}/resources/upload`, {
       method: "POST",
-      data:formData
+      data: formData
+    }),
+
+  addWebResource: (notebookId: string, data: { url: string; type: "YOUTUBE" | "WEBSITE" }) =>
+    apiFetch<{ resource: Resource }>(`/notebooks/${notebookId}/resources/web`, {
+      method: "POST",
+      data,
     }),
 
   remove: (notebookId: string, resourceId: string) =>

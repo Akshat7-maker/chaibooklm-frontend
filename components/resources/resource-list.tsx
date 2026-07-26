@@ -1,11 +1,11 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useResources } from "@/hooks/use-resources";
-import { useUploadResource } from "@/hooks/use-upload-resource";
 import { useQueryClient } from "@tanstack/react-query";
 import { resourcesApi } from "@/lib/api/notebooks";
 import { ResourceItem } from "./resource-item";
+import { AddResourceModal } from "./add-resource-modal";
 import { EmptyState } from "@/components/shared/empty-state";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -18,31 +18,11 @@ interface ResourceListProps {
 }
 
 export function ResourceList({ notebookId }: ResourceListProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const queryClient = useQueryClient();
   const { data, isLoading } = useResources(notebookId);
   const resources = data?.resources ?? [];
-  const { mutateAsync: uploadResource, isPending: isUploading } = useUploadResource(notebookId);
   const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
-
-  const handleUploadClick = () => {
-    fileInputRef.current?.click();
-  };
-
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    try {
-      await uploadResource(file);
-      // Reset input
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    } catch (error) {
-      console.error("Upload failed:", error);
-    }
-  };
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleDelete = async (resourceId: string) => {
     try {
@@ -64,18 +44,10 @@ export function ResourceList({ notebookId }: ResourceListProps) {
           size="icon" 
           variant="outline" 
           className="w-8 h-8 rounded-full" 
-          onClick={handleUploadClick}
-          disabled={isUploading}
+          onClick={() => setIsModalOpen(true)}
         >
-          {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
+          <Plus className="w-4 h-4" />
         </Button>
-        <input 
-          type="file"
-          ref={fileInputRef}
-          className="hidden"
-          accept=".pdf,.vtt,.docx,.txt"
-          onChange={handleFileChange}
-        />
       </div>
 
       <ScrollArea className="flex-1 p-4">
@@ -99,6 +71,17 @@ export function ResourceList({ notebookId }: ResourceListProps) {
               icon={<FileText className="w-8 h-8" />}
               title="No sources yet"
               description="Upload documents to start building your knowledge base"
+              action={
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsModalOpen(true)}
+                  className="mt-2"
+                >
+                  <Plus className="w-4 h-4 mr-1.5" />
+                  Add Source
+                </Button>
+              }
             />
           </div>
         ) : (
@@ -119,6 +102,13 @@ export function ResourceList({ notebookId }: ResourceListProps) {
           </div>
         )}
       </ScrollArea>
+
+      {/* Add Resource Modal */}
+      <AddResourceModal
+        notebookId={notebookId}
+        open={isModalOpen}
+        onOpenChange={setIsModalOpen}
+      />
     </div>
   );
 }

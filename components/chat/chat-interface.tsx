@@ -114,7 +114,6 @@
 //                 <><div>Loading..</div></>
 // )}
 
-
 //               {isLoading && (
 //                 <div className="animate-pulse flex gap-2 items-center text-muted-foreground p-4 text-sm">
 //                   <div
@@ -171,19 +170,32 @@ interface ChatInterfaceProps {
 const BOTTOM_THRESHOLD_PX = 80; // how close to the bottom counts as "already there"
 
 export function ChatInterface({ notebookId }: ChatInterfaceProps) {
-  const { data, isLoading: convoLoading, isError } = useConversation(notebookId);
+  const {
+    data,
+    isLoading: convoLoading,
+    isError,
+  } = useConversation(notebookId);
   const conversationId = data?.conversation?.id || "";
   const { data: resourcesData } = useResources(notebookId);
   const resources = resourcesData?.resources ?? [];
 
   const { data: m } = useGetMessages(conversationId);
   const { mutateAsync: sendMessage } = useSendMessage(conversationId);
-  const { streamingText, isStreaming, streamError } = useStreamingAnswer(conversationId);
+  const { streamingText, isStreaming, streamError, streamStarted } =
+    useStreamingAnswer(conversationId);
 
   const serverMessages = m?.messages || [];
 
   const displayMessages = isStreaming
-    ? [...serverMessages, { id: "streaming", role: "ASSISTANT" as const, content: streamingText, citations: null }]
+    ? [
+        ...serverMessages,
+        {
+          id: "streaming",
+          role: "ASSISTANT" as const,
+          content: streamingText,
+          citations: null,
+        },
+      ]
     : serverMessages;
 
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -220,25 +232,25 @@ export function ChatInterface({ notebookId }: ChatInterfaceProps) {
     }
   };
 
-  const handleCitationClick = (citation:Citation) => {
-  const resource = resources.find((r) => r.id === citation.resourceId);
-  if (!resource?.originalUrl) return;
+  const handleCitationClick = (citation: Citation) => {
+    const resource = resources.find((r) => r.id === citation.resourceId);
+    if (!resource?.originalUrl) return;
 
-  if (citation.sourceType === "YOUTUBE" && citation.startTime != null) {
-    const url = new URL(resource.originalUrl);
-    url.searchParams.set("t", `${Math.floor(citation.startTime)}s`);
-    window.open(url.toString(), "_blank");
-    return;
-  }
+    if (citation.sourceType === "YOUTUBE" && citation.startTime != null) {
+      const url = new URL(resource.originalUrl);
+      url.searchParams.set("t", `${Math.floor(citation.startTime)}s`);
+      window.open(url.toString(), "_blank");
+      return;
+    }
 
-  if (citation.sourceType === "PDF" && citation.page) {
-    window.open(`${resource.originalUrl}#page=${citation.page}`, "_blank");
-    return;
-  }
+    if (citation.sourceType === "PDF" && citation.page) {
+      window.open(`${resource.originalUrl}#page=${citation.page}`, "_blank");
+      return;
+    }
 
-  // WEBSITE, DOCX, TXT, VTT-without-a-source-link — just open the source
-  window.open(resource.originalUrl, "_blank");
-};
+    // WEBSITE, DOCX, TXT, VTT-without-a-source-link — just open the source
+    window.open(resource.originalUrl, "_blank");
+  };
 
   if (convoLoading) {
     return (
@@ -281,19 +293,40 @@ export function ChatInterface({ notebookId }: ChatInterfaceProps) {
           ) : (
             <div className="flex flex-col pb-6">
               {displayMessages.map((msg) => (
-                <ChatMessage key={msg.id} role={msg.role} content={msg.content} citations={msg.citations} onCitationClick={handleCitationClick} />
+                <ChatMessage
+                  key={msg.id}
+                  role={msg.role}
+                  content={msg.content}
+                  citations={msg.citations}
+                  onCitationClick={handleCitationClick}
+                />
               ))}
+
+              {streamStarted && (
+                <span>Loading..</span>
+              )}
 
               {isStreaming && streamingText === "" && (
                 <div className="animate-pulse flex gap-2 items-center text-muted-foreground p-4 text-sm">
-                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "0ms" }} />
-                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "150ms" }} />
-                  <div className="w-2 h-2 bg-current rounded-full animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <div
+                    className="w-2 h-2 bg-current rounded-full animate-bounce"
+                    style={{ animationDelay: "0ms" }}
+                  />
+                  <div
+                    className="w-2 h-2 bg-current rounded-full animate-bounce"
+                    style={{ animationDelay: "150ms" }}
+                  />
+                  <div
+                    className="w-2 h-2 bg-current rounded-full animate-bounce"
+                    style={{ animationDelay: "300ms" }}
+                  />
                 </div>
               )}
 
               {streamError && (
-                <div className="text-sm text-destructive px-4 py-2">{streamError}</div>
+                <div className="text-sm text-destructive px-4 py-2">
+                  {streamError}
+                </div>
               )}
 
               <div ref={messagesEndRef} className="h-4" />

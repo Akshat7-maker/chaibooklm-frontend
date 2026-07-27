@@ -20,10 +20,14 @@ interface ErrorEvent {
   error: string;
 }
 
+interface StartStreamEvent {
+  started: boolean;
+}
+
 export function useStreamingAnswer(conversationId: string | undefined) {
   const queryClient = useQueryClient();
   const { socket, isConnected } = useSocket();
-
+  const [streamStarted, setstreamStarted] = useState(false);
   const [streamingText, setStreamingText] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [streamError, setStreamError] = useState<string | null>(null);
@@ -32,7 +36,9 @@ export function useStreamingAnswer(conversationId: string | undefined) {
     if (!socket || !isConnected || !conversationId) return;
 
     function onToken(payload: TokenEvent) {
+      console.log("token ", payload);
       if (payload.conversationId !== conversationId) return;
+      setstreamStarted(false);
       setIsStreaming(true);
       setStreamError(null);
       setStreamingText((prev) => prev + payload.token);
@@ -63,18 +69,30 @@ export function useStreamingAnswer(conversationId: string | undefined) {
       setIsStreaming(false);
       setStreamingText("");
       setStreamError(payload.error);
+      setstreamStarted(false);
+    }
+
+    function onStartStream(payload: StartStreamEvent) {
+      const { started } = payload;
+
+      if (started) {
+        setstreamStarted(true);
+        setStreamError(null)
+      }
     }
 
     socket.on("answer:token", onToken);
     socket.on("answer:done", onDone);
     socket.on("answer:error", onError);
+    socket.on("stream:started",onStartStream);
 
     return () => {
       socket.off("answer:token", onToken);
       socket.off("answer:done", onDone);
       socket.off("answer:error", onError);
+      socket.off("stream:started", onError);
     };
   }, [socket, isConnected, conversationId, queryClient]);
 
-  return { streamingText, isStreaming, streamError };
+  return { streamingText, isStreaming, streamStarted, streamError };
 }
